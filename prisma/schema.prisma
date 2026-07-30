@@ -1,0 +1,421 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum RoleName {
+  PATIENT
+  FAMILY_MEMBER
+  DOCTOR
+  FACILITY_ADMIN
+  STAFF
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            String         @id @default(uuid())
+  phone         String         @unique
+  status        UserStatus     @default(ACTIVE)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  authOtps      AuthOtp[]
+  userSessions  UserSession[]
+  refreshTokens RefreshToken[]
+  userRoles     UserRole[]
+  patientProfile PatientProfile?
+  doctorProfile DoctorProfile?
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String     @id @default(uuid())
+  name        RoleName   @unique
+  description String?
+  userRoles   UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model AuthOtp {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  otpHash    String   @map("otp_hash")
+  expiresAt  DateTime @map("expires_at")
+  isVerified Boolean  @default(false) @map("is_verified")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_otps")
+}
+
+model UserSession {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  tokenHash  String   @map("token_hash")
+  isRevoked  Boolean  @default(false) @map("is_revoked")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model PatientProfile {
+  id               String            @id @default(uuid())
+  userId           String            @unique @map("user_id")
+  firstName        String            @map("first_name")
+  lastName         String            @map("last_name")
+  dateOfBirth      DateTime          @map("date_of_birth")
+  gender           String
+  bloodGroup       String?           @map("blood_group")
+  address          String?
+  onboardingStep   Int               @default(2) @map("onboarding_step")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emergencyContact EmergencyContact?
+  familyMembers    FamilyMember[]
+  familyConsents   FamilyConsent[]
+  insurancePolicy  InsurancePolicy?
+  healthCard       HealthCard?
+  medicalReports   MedicalReport[]
+  ocrDocuments     OcrDocument[]
+
+  @@map("patient_profiles")
+}
+
+model EmergencyContact {
+  id               String         @id @default(uuid())
+  patientProfileId String         @unique @map("patient_profile_id")
+  name             String
+  relationship     String
+  phone            String
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+
+  @@map("emergency_contacts")
+}
+
+model FamilyMember {
+  id               String         @id @default(uuid())
+  patientProfileId String         @map("patient_profile_id")
+  fullName         String         @map("full_name")
+  relationship     String
+  phone            String
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+
+  @@map("family_members")
+}
+
+enum ConsentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model FamilyConsent {
+  id               String         @id @default(uuid())
+  patientProfileId String         @map("patient_profile_id")
+  inviteePhone     String         @map("invitee_phone")
+  relationship     String
+  status           ConsentStatus  @default(PENDING)
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+
+  @@map("family_consents")
+}
+
+model InsurancePolicy {
+  id               String         @id @default(uuid())
+  patientProfileId String         @unique @map("patient_profile_id")
+  providerName     String         @map("provider_name")
+  policyNumber     String         @map("policy_number")
+  coverageDetails  String?        @map("coverage_details")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+
+  @@map("insurance_policies")
+}
+
+model InsuranceOcrRecord {
+  id               String         @id @default(uuid())
+  patientProfileId String         @map("patient_profile_id")
+  imageUrl         String         @map("image_url")
+  extractedData    String         @map("extracted_data")
+  isConfirmed      Boolean        @default(false) @map("is_confirmed")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@map("insurance_ocr_records")
+}
+
+model HealthCard {
+  id               String         @id @default(uuid())
+  patientProfileId String         @unique @map("patient_profile_id")
+  cardNumber       String         @unique @map("card_number")
+  status           String         @default("ACTIVE")
+  issuedAt         DateTime       @default(now()) @map("issued_at")
+  expiresAt        DateTime       @map("expires_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  healthCardQr     HealthCardQr?
+
+  @@map("health_cards")
+}
+
+model HealthCardQr {
+  id               String         @id @default(uuid())
+  healthCardId     String         @unique @map("health_card_id")
+  encryptedPayload String         @map("encrypted_payload")
+  expiresAt        DateTime       @map("expires_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  healthCard       HealthCard     @relation(fields: [healthCardId], references: [id], onDelete: Cascade)
+
+  @@map("health_card_qrs")
+}
+
+model QrVerificationLog {
+  id               String         @id @default(uuid())
+  qrId             String         @map("qr_id")
+  verifierUserId   String         @map("verifier_user_id")
+  status           String         @map("status")
+  scannedAt        DateTime       @default(now()) @map("scanned_at")
+
+  @@map("qr_verification_logs")
+}
+
+model MedicalReport {
+  id               String            @id @default(uuid())
+  patientProfileId String            @map("patient_profile_id")
+  title            String
+  category         String
+  prescribedBy     String?           @map("prescribed_by")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile    @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  attachments      ReportAttachment[]
+
+  @@map("medical_reports")
+}
+
+model ReportAttachment {
+  id              String        @id @default(uuid())
+  medicalReportId String        @map("medical_report_id")
+  fileName        String        @map("file_name")
+  fileSize        Int           @map("file_size")
+  mimeType        String        @map("mime_type")
+  storageUrl      String        @map("storage_url")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  medicalReport   MedicalReport @relation(fields: [medicalReportId], references: [id], onDelete: Cascade)
+
+  @@map("report_attachments")
+}
+
+model Facility {
+  id          String               @id @default(uuid())
+  name        String
+  address     String
+  phone       String
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  departments FacilityDepartment[]
+  doctors     DoctorFacility[]
+
+  @@map("facilities")
+}
+
+model FacilityDepartment {
+  id          String   @id @default(uuid())
+  facilityId  String   @map("facility_id")
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  facility    Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@map("facility_departments")
+}
+
+model DoctorProfile {
+  id             String               @id @default(uuid())
+  userId         String               @unique @map("user_id")
+  fullName       String               @map("full_name")
+  specialization String
+  credentials    String
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facilities     DoctorFacility[]
+  scheduleSlots  DoctorScheduleSlot[]
+
+  @@map("doctor_profiles")
+}
+
+model DoctorFacility {
+  id              String        @id @default(uuid())
+  doctorId        String        @map("doctor_id")
+  facilityId      String        @map("facility_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  doctor          DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  facility        Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, facilityId])
+  @@map("doctor_facilities")
+}
+
+model DoctorScheduleSlot {
+  id              String        @id @default(uuid())
+  doctorProfileId String        @map("doctor_profile_id")
+  startTime       DateTime      @map("start_time")
+  endTime         DateTime      @map("end_time")
+  isBooked        Boolean       @default(false) @map("is_booked")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  doctor          DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+
+  @@map("doctor_schedule_slots")
+}
+
+model CmsPage {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  title     String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("cms_pages")
+}
+
+model HealthArticle {
+  id        String   @id @default(uuid())
+  title     String
+  summary   String
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("health_articles")
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("faqs")
+}
+
+model OcrDocument {
+  id               String         @id @default(uuid())
+  patientProfileId String         @map("patient_profile_id")
+  imageUrl         String         @map("image_url")
+  status           String         @default("PENDING")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  extractions      OcrExtraction[]
+  reviews          OcrReview[]
+
+  @@map("ocr_documents")
+}
+
+model OcrExtraction {
+  id            String      @id @default(uuid())
+  documentId    String      @map("document_id")
+  extractedData String      @map("extracted_data") // JSON payload string
+  confidence    Float
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  document      OcrDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("ocr_extractions")
+}
+
+model OcrReview {
+  id            String      @id @default(uuid())
+  documentId    String      @map("document_id")
+  correctedData String      @map("corrected_data") // JSON payload string confirmed
+  reviewedAt    DateTime    @default(now()) @map("reviewed_at")
+
+  document      OcrDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("ocr_reviews")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  action    String
+  details   String?
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}

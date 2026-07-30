@@ -1,0 +1,25 @@
+export class UserEntity {
+  id!: string;
+  phone!: string;
+  status!: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+  createdAt!: Date;
+  updatedAt!: Date;
+}
+
+export class AuthOtpEntity {
+  id!: string;
+  userId!: string;
+  otpHash!: string;
+  expiresAt!: Date;
+  isVerified!: boolean;
+  createdAt!: Date;
+}
+
+export class RefreshTokenEntity {
+  id!: string;
+  userId!: string;
+  tokenHash!: string;
+  isRevoked!: boolean;
+  expiresAt!: Date;
+  createdAt!: Date;
+}

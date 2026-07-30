@@ -1,0 +1,49 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
+import { configuration } from '@config/env.config';
+import { validateEnvironment } from '@config/env.validation';
+import { DatabaseModule } from '@database/database.module';
+import { HealthModule } from '@core/health/health.module';
+
+import { AuthModule } from '@modules/auth/auth.module';
+import { PatientModule } from '@modules/patient/patient.module';
+import { DoctorModule } from '@modules/doctor/doctor.module';
+import { FacilityModule } from '@modules/facility/facility.module';
+import { HealthCardModule } from '@modules/health-card/health-card.module';
+import { AppointmentModule } from '@modules/appointment/appointment.module';
+import { ReportModule } from '@modules/report/report.module';
+import { InsuranceModule } from '@modules/insurance/insurance.module';
+import { CmsModule } from '@modules/cms/cms.module';
+import { AdminModule } from '@modules/admin/admin.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      validate: validateEnvironment,
+    }),
+    PinoLoggerModule.forRoot({
+      pinoHttp: {
+        transport: process.env.NODE_ENV !== 'production' ? { target: 'pino-pretty' } : undefined,
+        level: process.env.LOG_LEVEL || 'info',
+      },
+    }),
+    DatabaseModule,
+    HealthModule,
+
+    // Enterprise Domain Modules
+    AuthModule,
+    PatientModule,
+    DoctorModule,
+    FacilityModule,
+    HealthCardModule,
+    AppointmentModule,
+    ReportModule,
+    InsuranceModule,
+    CmsModule,
+    AdminModule,
+  ],
+})
+export class AppModule {}
