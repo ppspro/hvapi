@@ -1694,6 +1694,212 @@ model StaffAuditLog {
   @@map("staff_audit_logs")
 }
 
+// ─── Phase 16: Enterprise Scheduling & Availability Engine ───────────────────
+
+enum ScheduleOwnerType {
+  DOCTOR
+  STAFF
+  FACILITY
+  DEPARTMENT
+}
+
+enum SessionType {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+  CUSTOM
+}
+
+enum ShiftType {
+  MORNING
+  EVENING
+  NIGHT
+  SPLIT
+  CUSTOM
+}
+
+enum SlotStatus {
+  AVAILABLE
+  BLOCKED
+  HOLIDAY
+  LEAVE
+  EXCEPTION
+}
+
+model Schedule {
+  id                   String              @id @default(uuid())
+  ownerType            ScheduleOwnerType   @map("owner_type")
+  doctorProfileId      String?             @map("doctor_profile_id")
+  staffId              String?             @map("staff_id")
+  facilityId           String?             @map("facility_id")
+  departmentId         String?             @map("department_id")
+  title                String
+  timezone             String              @default("Asia/Karachi")
+  slotDurationMinutes  Int                 @default(15) @map("slot_duration_minutes")
+  bufferMinutes        Int                 @default(5) @map("buffer_minutes")
+  maxPatientsPerSlot   Int                 @default(1) @map("max_patients_per_slot")
+  effectiveFrom        DateTime            @map("effective_from")
+  effectiveTo          DateTime?           @map("effective_to")
+  isActive             Boolean             @default(true) @map("is_active")
+  notes                String?
+  isDeleted            Boolean             @default(false) @map("is_deleted")
+  deletedAt            DateTime?           @map("deleted_at")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+
+  workingHours         WorkingHours[]
+  recurringSchedules   RecurringSchedule[]
+  exceptions           ScheduleException[]
+  leaveBlocks          LeaveBlock[]
+  generatedSlots       GeneratedSlot[]
+  auditLogs            ScheduleAuditLog[]
+
+  @@map("schedules")
+}
+
+model WorkingHours {
+  id           String      @id @default(uuid())
+  scheduleId   String      @map("schedule_id")
+  dayOfWeek    Int         @map("day_of_week")
+  sessionType  SessionType @default(MORNING) @map("session_type")
+  startTime    String      @map("start_time")
+  endTime      String      @map("end_time")
+  breakStart   String?     @map("break_start")
+  breakEnd     String?     @map("break_end")
+  isEnabled    Boolean     @default(true) @map("is_enabled")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  schedule     Schedule    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("working_hours")
+}
+
+model RecurringSchedule {
+  id              String    @id @default(uuid())
+  scheduleId      String    @map("schedule_id")
+  recurrenceType  String    @default("WEEKLY") @map("recurrence_type")
+  recurrenceDays  Int[]     @map("recurrence_days")
+  skipHolidays    Boolean   @default(true) @map("skip_holidays")
+  skipLeave       Boolean   @default(true) @map("skip_leave")
+  startDate       DateTime  @map("start_date")
+  endDate         DateTime? @map("end_date")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  schedule        Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("recurring_schedules")
+}
+
+model ScheduleException {
+  id            String    @id @default(uuid())
+  scheduleId    String    @map("schedule_id")
+  exceptionType String    @map("exception_type")
+  startDatetime DateTime  @map("start_datetime")
+  endDatetime   DateTime  @map("end_datetime")
+  reason        String?
+  addedBy       String?   @map("added_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  schedule      Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("schedule_exceptions")
+}
+
+model LeaveBlock {
+  id          String    @id @default(uuid())
+  scheduleId  String    @map("schedule_id")
+  leaveType   String    @default("CASUAL") @map("leave_type")
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  reason      String?
+  approvedBy  String?   @map("approved_by")
+  status      String    @default("APPROVED") @map("status")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  schedule    Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("leave_blocks")
+}
+
+model HolidayCalendar {
+  id          String    @id @default(uuid())
+  facilityId  String?   @map("facility_id")
+  name        String
+  holidayDate DateTime  @map("holiday_date")
+  isRecurring Boolean   @default(false) @map("is_recurring")
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([facilityId])
+  @@index([holidayDate])
+  @@map("holiday_calendars")
+}
+
+model Shift {
+  id                  String           @id @default(uuid())
+  facilityId          String           @map("facility_id")
+  departmentId        String?          @map("department_id")
+  name                String
+  shiftType           ShiftType        @default(MORNING) @map("shift_type")
+  startTime           String           @map("start_time")
+  endTime             String           @map("end_time")
+  breakDurationMinutes Int             @default(30) @map("break_duration_minutes")
+  isActive            Boolean          @default(true) @map("is_active")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  assignments         ShiftAssignment[]
+
+  @@map("shifts")
+}
+
+model ShiftAssignment {
+  id           String    @id @default(uuid())
+  shiftId      String    @map("shift_id")
+  staffId      String    @map("staff_id")
+  assignedDate DateTime  @map("assigned_date")
+  status       String    @default("ASSIGNED") @map("status")
+  notes        String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  shift        Shift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, staffId, assignedDate])
+  @@map("shift_assignments")
+}
+
+model GeneratedSlot {
+  id              String     @id @default(uuid())
+  scheduleId      String     @map("schedule_id")
+  slotDate        DateTime   @map("slot_date")
+  startTime       String     @map("start_time")
+  endTime         String     @map("end_time")
+  durationMinutes Int        @map("duration_minutes")
+  status          SlotStatus @default(AVAILABLE) @map("status")
+  statusReason    String?    @map("status_reason")
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  schedule        Schedule   @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId, slotDate])
+  @@map("generated_slots")
+}
+
+model ScheduleAuditLog {
+  id          String    @id @default(uuid())
+  scheduleId  String    @map("schedule_id")
+  action      String
+  performedBy String?   @map("performed_by")
+  details     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  schedule    Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("schedule_audit_logs")
+}
+
+
 
 
 
