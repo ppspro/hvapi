@@ -2664,6 +2664,144 @@ model OCRAuditLog {
   @@map("ocr_audit_logs")
 }
 
+// ─── Phase 23: Enterprise Security & Compliance Platform ─────────────────────
+
+enum SecurityConsentStatus {
+  PENDING
+  GRANTED
+  DENIED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum SecurityConsentType {
+  TREATMENT
+  DATA_COLLECTION
+  DATA_SHARING
+  RESEARCH
+  MARKETING
+  DOCUMENT_PROCESSING
+  OTHER
+}
+
+enum EncryptionStatus {
+  ACTIVE
+  ROTATING
+  EXPIRED
+  REVOKED
+}
+
+enum RetentionAction {
+  ARCHIVE
+  DELETE
+  ANONYMIZE
+}
+
+enum SecurityIncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model SecurityConsentRecord {
+  id                 String                @id @default(uuid())
+  patientId          String                @map("patient_id")
+  consentType        SecurityConsentType   @default(TREATMENT) @map("consent_type")
+  status             SecurityConsentStatus @default(GRANTED)
+  purpose            String
+  grantedAt          DateTime?             @map("granted_at")
+  expiresAt          DateTime?             @map("expires_at")
+  withdrawnAt        DateTime?             @map("withdrawn_at")
+  capturedBy         String?               @map("captured_by")
+  evidenceReference  String?               @map("evidence_reference")
+  isDeleted          Boolean               @default(false) @map("is_deleted")
+  deletedAt          DateTime?             @map("deleted_at")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+
+  @@index([patientId, status])
+  @@map("security_consent_records")
+}
+
+model EncryptionKey {
+  id            String           @id @default(uuid())
+  keyIdentifier String           @unique @map("key_identifier")
+  algorithm     String           @default("AES-256-GCM")
+  version       Int              @default(1)
+  status        EncryptionStatus @default(ACTIVE)
+  activatedAt   DateTime?        @map("activated_at")
+  expiresAt     DateTime?        @map("expires_at")
+  rotationDate  DateTime?        @map("rotation_date")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@map("encryption_keys")
+}
+
+model RetentionPolicy {
+  id                  String          @id @default(uuid())
+  name                String
+  resourceType        String          @unique @map("resource_type")
+  retentionPeriodDays Int             @default(2555) @map("retention_period_days")
+  action              RetentionAction @default(ARCHIVE)
+  isActive            Boolean         @default(true) @map("is_active")
+  isDeleted           Boolean         @default(false) @map("is_deleted")
+  deletedAt           DateTime?       @map("deleted_at")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+
+  @@map("retention_policies")
+}
+
+model SecurityIncident {
+  id          String                   @id @default(uuid())
+  title       String
+  description String
+  severity    SecurityIncidentSeverity @default(MEDIUM)
+  status      String                   @default("OPEN")
+  reportedBy  String?                  @map("reported_by")
+  resolvedBy  String?                  @map("resolved_by")
+  resolvedAt  DateTime?                @map("resolved_at")
+  isDeleted   Boolean                  @default(false) @map("is_deleted")
+  deletedAt   DateTime?                @map("deleted_at")
+  createdAt   DateTime                 @default(now()) @map("created_at")
+  updatedAt   DateTime                 @updatedAt @map("updated_at")
+
+  @@map("security_incidents")
+}
+
+model SecurityPlatformAuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  result     String   @default("SUCCESS")
+  details    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userId, action])
+  @@map("security_platform_audit_logs")
+}
+
+model ComplianceReport {
+  id          String   @id @default(uuid())
+  reportName  String   @map("report_name")
+  reportType  String   @map("report_type")
+  generatedBy String?  @map("generated_by")
+  generatedAt DateTime @default(now()) @map("generated_at")
+  summary     String?
+  metadata    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("compliance_reports")
+}
+
+
+
 
 
 

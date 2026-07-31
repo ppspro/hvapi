@@ -34,6 +34,7 @@ const reports_module_1 = require("./modules/reports/reports.module");
 const governance_module_1 = require("./modules/governance/governance.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const ocr_module_1 = require("./modules/ocr/ocr.module");
+const security_module_1 = require("./modules/security/security.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -73,6 +74,7 @@ exports.AppModule = AppModule = __decorate([
             governance_module_1.GovernanceModule,
             notifications_module_1.NotificationsModule,
             ocr_module_1.OcrModule,
+            security_module_1.SecurityModule,
         ],
     })
 ], AppModule);
