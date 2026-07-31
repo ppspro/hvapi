@@ -20,6 +20,7 @@ import { FamilyModule } from '@modules/family/family.module';
 import { MedicalRecordModule } from '@modules/medical-record/medical-record.module';
 import { QrModule } from '@modules/qr/qr.module';
 import { ImmunisationModule } from '@modules/immunisation/immunisation.module';
+import { StaffModule } from '@modules/staff/staff.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ImmunisationModule } from '@modules/immunisation/immunisation.module';
     MedicalRecordModule,
     QrModule,
     ImmunisationModule,
+    StaffModule,
   ],
 })
 export class AppModule {}

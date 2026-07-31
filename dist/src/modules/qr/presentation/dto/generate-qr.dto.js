@@ -22,6 +22,7 @@ var QrEntityType;
     QrEntityType["IMMUNISATION"] = "IMMUNISATION";
     QrEntityType["DOCTOR_ID"] = "DOCTOR_ID";
     QrEntityType["FACILITY_ID"] = "FACILITY_ID";
+    QrEntityType["STAFF_ID"] = "STAFF_ID";
     QrEntityType["EMERGENCY_CARD"] = "EMERGENCY_CARD";
     QrEntityType["CUSTOM"] = "CUSTOM";
 })(QrEntityType || (exports.QrEntityType = QrEntityType = {}));

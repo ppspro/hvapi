@@ -28,6 +28,7 @@ const family_module_1 = require("./modules/family/family.module");
 const medical_record_module_1 = require("./modules/medical-record/medical-record.module");
 const qr_module_1 = require("./modules/qr/qr.module");
 const immunisation_module_1 = require("./modules/immunisation/immunisation.module");
+const staff_module_1 = require("./modules/staff/staff.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -61,6 +62,7 @@ exports.AppModule = AppModule = __decorate([
             medical_record_module_1.MedicalRecordModule,
             qr_module_1.QrModule,
             immunisation_module_1.ImmunisationModule,
+            staff_module_1.StaffModule,
         ],
     })
 ], AppModule);

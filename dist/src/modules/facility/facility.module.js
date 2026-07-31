@@ -12,12 +12,13 @@ const facility_controller_1 = require("./presentation/controllers/facility.contr
 const facility_service_1 = require("./application/use-cases/facility.service");
 const facility_repository_1 = require("./infrastructure/database/facility.repository");
 const database_module_1 = require("../../database/database.module");
+const qr_module_1 = require("../qr/qr.module");
 let FacilityModule = class FacilityModule {
 };
 exports.FacilityModule = FacilityModule;
 exports.FacilityModule = FacilityModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, qr_module_1.QrModule],
         controllers: [facility_controller_1.FacilityController],
         providers: [
             facility_service_1.FacilityService,

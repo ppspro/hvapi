@@ -6,6 +6,7 @@ export declare enum QrEntityType {
     IMMUNISATION = "IMMUNISATION",
     DOCTOR_ID = "DOCTOR_ID",
     FACILITY_ID = "FACILITY_ID",
+    STAFF_ID = "STAFF_ID",
     EMERGENCY_CARD = "EMERGENCY_CARD",
     CUSTOM = "CUSTOM"
 }
