@@ -66,8 +66,9 @@ export class FacilityService {
     return list.map(d => ({
       id: d.id,
       fullName: d.fullName,
-      specialization: d.specialization,
-      credentials: d.credentials,
+      specialization: d.primarySpecialization,
+      credentials: d.medicalCouncil || 'MD',
     }));
+
   }
 }

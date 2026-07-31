@@ -16,6 +16,10 @@ import { ReportModule } from '@modules/report/report.module';
 import { InsuranceModule } from '@modules/insurance/insurance.module';
 import { CmsModule } from '@modules/cms/cms.module';
 import { AdminModule } from '@modules/admin/admin.module';
+import { FamilyModule } from '@modules/family/family.module';
+import { MedicalRecordModule } from '@modules/medical-record/medical-record.module';
+import { QrModule } from '@modules/qr/qr.module';
+import { ImmunisationModule } from '@modules/immunisation/immunisation.module';
 
 @Module({
   imports: [
@@ -44,6 +48,10 @@ import { AdminModule } from '@modules/admin/admin.module';
     InsuranceModule,
     CmsModule,
     AdminModule,
+    FamilyModule,
+    MedicalRecordModule,
+    QrModule,
+    ImmunisationModule,
   ],
 })
 export class AppModule {}

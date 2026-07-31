@@ -12,6 +12,8 @@ export class AuthOtpEntity {
   otpHash!: string;
   expiresAt!: Date;
   isVerified!: boolean;
+  attempts!: number;
+  resendCount!: number;
   createdAt!: Date;
 }
 
@@ -23,3 +25,4 @@ export class RefreshTokenEntity {
   expiresAt!: Date;
   createdAt!: Date;
 }
+

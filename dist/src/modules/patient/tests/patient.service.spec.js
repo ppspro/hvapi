@@ -13,6 +13,11 @@ describe('PatientService', () => {
             createEmergencyContact: jest.fn(),
             updateEmergencyContact: jest.fn(),
             findEmergencyContactByProfileId: jest.fn(),
+            createInsurancePolicy: jest.fn(),
+            updateInsurancePolicy: jest.fn(),
+            findInsurancePolicyByProfileId: jest.fn(),
+            createHealthCard: jest.fn(),
+            findHealthCardByProfileId: jest.fn(),
             createFamilyConsent: jest.fn(),
             findConsentById: jest.fn(),
             updateConsentStatus: jest.fn(),
@@ -30,6 +35,13 @@ describe('PatientService', () => {
                 id: 'new-profile-uuid',
                 firstName: 'John',
                 lastName: 'Doe',
+                onboardingStep: 1,
+            });
+            mockPatientRepository.updateProfile.mockResolvedValue({
+                id: 'new-profile-uuid',
+                firstName: 'John',
+                lastName: 'Doe',
+                onboardingStep: 2,
             });
             const result = await service.onboardDemographics('user-123', {
                 firstName: 'John',
@@ -38,15 +50,17 @@ describe('PatientService', () => {
                 gender: 'Male',
             });
             expect(mockPatientRepository.createProfile).toHaveBeenCalled();
+            expect(mockPatientRepository.updateProfile).toHaveBeenCalled();
             expect(result.profileId).toBe('new-profile-uuid');
             expect(result.nextStep).toBe(3);
         });
     });
     describe('onboardEmergencyInfo', () => {
         it('should create emergency contact details linked to profile', async () => {
-            mockPatientRepository.findProfileByUserId.mockResolvedValue({ id: 'profile-123' });
+            mockPatientRepository.findProfileByUserId.mockResolvedValue({ id: 'profile-123', onboardingStep: 2 });
             mockPatientRepository.findEmergencyContactByProfileId.mockResolvedValue(null);
             mockPatientRepository.createEmergencyContact.mockResolvedValue({ id: 'contact-123' });
+            mockPatientRepository.updateProfile.mockResolvedValue({ id: 'profile-123', onboardingStep: 3 });
             const result = await service.onboardEmergencyInfo('user-123', {
                 name: 'Jane Doe',
                 relationship: 'Spouse',

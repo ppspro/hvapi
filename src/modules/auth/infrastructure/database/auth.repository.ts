@@ -12,7 +12,20 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async createUser(phone: string): Promise<UserEntity> {
-    return (await this.db.user.create({ data: { phone } })) as UserEntity;
+    const user = await this.db.user.create({ data: { phone } });
+    let role = await this.db.role.findUnique({ where: { name: 'PATIENT' } });
+    if (!role) {
+      role = await this.db.role.create({
+        data: { name: 'PATIENT', description: 'Default Patient Role' },
+      });
+    }
+    await this.db.userRole.create({
+      data: {
+        userId: user.id,
+        roleId: role.id,
+      },
+    });
+    return user as UserEntity;
   }
 
   async createOtp(userId: string, otpHash: string, expiresAt: Date): Promise<AuthOtpEntity> {
@@ -32,9 +45,55 @@ export class AuthRepository implements IAuthRepository {
     });
   }
 
-  async createSession(userId: string, ipAddress?: string, userAgent?: string): Promise<void> {
-    await this.db.userSession.create({
-      data: { userId, ipAddress, userAgent },
+  async incrementOtpAttempts(otpId: string): Promise<void> {
+    await this.db.authOtp.update({
+      where: { id: otpId },
+      data: { attempts: { increment: 1 } },
+    });
+  }
+
+  async incrementOtpResends(otpId: string, newHash: string, newExpiresAt: Date): Promise<void> {
+    await this.db.authOtp.update({
+      where: { id: otpId },
+      data: {
+        otpHash: newHash,
+        expiresAt: newExpiresAt,
+        resendCount: { increment: 1 },
+      },
+    });
+  }
+
+  async createSession(userId: string, ipAddress?: string, userAgent?: string): Promise<any> {
+    return await this.db.userSession.create({
+      data: { userId, ipAddress, userAgent, isActive: true },
+    });
+  }
+
+  async findActiveSessions(userId: string): Promise<any[]> {
+    return await this.db.userSession.findMany({
+      where: { userId, isActive: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async invalidateSession(sessionId: string, userId: string): Promise<void> {
+    await this.db.userSession.update({
+      where: { id: sessionId, userId },
+      data: { isActive: false },
+    });
+  }
+
+  async invalidateAllSessions(userId: string): Promise<void> {
+    await this.db.userSession.updateMany({
+      where: { userId, isActive: true },
+      data: { isActive: false },
+    });
+  }
+
+  async invalidateOtherSessions(userId: string, currentSessionId: string): Promise<void> {
+    await this.db.userSession.updateMany({
+      where: { userId, id: { not: currentSessionId }, isActive: true },
+      data: { isActive: false },
     });
   }
 
@@ -60,5 +119,19 @@ export class AuthRepository implements IAuthRepository {
       where: { userId, isRevoked: false },
       data: { isRevoked: true },
     });
+  }
+
+  async createAuditLog(userId: string, action: string, details?: string, ipAddress?: string): Promise<void> {
+    await this.db.auditLog.create({
+      data: { userId, action, details, ipAddress },
+    });
+  }
+
+  async findUserRoles(userId: string): Promise<string[]> {
+    const userRoles = await this.db.userRole.findMany({
+      where: { userId },
+      include: { role: true },
+    });
+    return userRoles.map(ur => ur.role.name);
   }
 }

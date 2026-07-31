@@ -19,57 +19,132 @@ let HealthCardRepository = class HealthCardRepository {
     async findProfileByUserId(userId) {
         return this.db.patientProfile.findUnique({
             where: { userId },
-            select: { id: true, firstName: true, lastName: true },
+            select: { id: true, firstName: true, lastName: true, dateOfBirth: true, bloodGroup: true },
         });
     }
-    async findCardByProfileId(profileId) {
-        return (await this.db.healthCard.findUnique({
-            where: { patientProfileId: profileId },
-            include: { healthCardQr: true },
-        }));
-    }
-    async createCard(profileId, cardNumber, expiresAt) {
-        return (await this.db.healthCard.create({
+    async createCard(patientProfileId, cardNumber, expiresAt, metadata) {
+        const card = await this.db.healthCard.create({
             data: {
-                patientProfileId: profileId,
+                patientProfileId,
                 cardNumber,
+                status: 'ISSUED',
+                version: 1,
                 expiresAt,
-                status: 'ACTIVE',
+                metadata: metadata || null,
             },
+            include: { healthCardQr: true, history: true },
+        });
+        await this.createHistory(card.id, {
+            action: 'ISSUED',
+            newStatus: 'ISSUED',
+            reason: 'Initial Health Card issuance',
+        });
+        return card;
+    }
+    async findCardById(id, includeDeleted = false) {
+        return (await this.db.healthCard.findFirst({
+            where: { id, ...(includeDeleted ? {} : { isDeleted: false }) },
+            include: { healthCardQr: true, history: { orderBy: { createdAt: 'desc' } } },
         }));
     }
-    async createQr(cardId, encryptedPayload, expiresAt) {
-        return (await this.db.healthCardQr.create({
+    async findCardByProfileId(patientProfileId, includeDeleted = false) {
+        return (await this.db.healthCard.findFirst({
+            where: { patientProfileId, ...(includeDeleted ? {} : { isDeleted: false }) },
+            include: { healthCardQr: true, history: { orderBy: { createdAt: 'desc' } } },
+        }));
+    }
+    async findCardByNumber(cardNumber) {
+        return (await this.db.healthCard.findFirst({
+            where: { cardNumber, isDeleted: false },
+            include: { healthCardQr: true, history: { orderBy: { createdAt: 'desc' } } },
+        }));
+    }
+    async updateCard(id, data) {
+        return (await this.db.healthCard.update({
+            where: { id },
             data: {
-                healthCardId: cardId,
-                encryptedPayload,
-                expiresAt,
+                status: data.status || undefined,
+                version: data.version || undefined,
+                emergencyFlag: data.emergencyFlag ?? undefined,
+                metadata: data.metadata || undefined,
+                expiresAt: data.expiresAt ? new Date(data.expiresAt) : undefined,
+                suspendedAt: data.suspendedAt || undefined,
+                blockedAt: data.blockedAt || undefined,
+                archivedAt: data.archivedAt || undefined,
+                replacedAt: data.replacedAt || undefined,
+                previousCardNumber: data.previousCardNumber || undefined,
+                isDeleted: data.isDeleted ?? undefined,
+                deletedAt: data.deletedAt || undefined,
             },
+            include: { healthCardQr: true, history: { orderBy: { createdAt: 'desc' } } },
         }));
     }
-    async findQrByPayload(encryptedPayload) {
-        return (await this.db.healthCardQr.findFirst({
-            where: { encryptedPayload },
-            include: { healthCard: true },
+    async searchCards(query) {
+        const q = query.toLowerCase();
+        return (await this.db.healthCard.findMany({
+            where: {
+                isDeleted: false,
+                OR: [
+                    { cardNumber: { contains: q, mode: 'insensitive' } },
+                    { patientProfile: { firstName: { contains: q, mode: 'insensitive' } } },
+                    { patientProfile: { lastName: { contains: q, mode: 'insensitive' } } },
+                    { patientProfile: { patientNumber: { contains: q, mode: 'insensitive' } } },
+                ],
+            },
+            include: { healthCardQr: true, history: { orderBy: { createdAt: 'desc' } } },
+            orderBy: { createdAt: 'desc' },
         }));
     }
-    async updateQrPayload(cardId, encryptedPayload, expiresAt) {
+    async createQr(healthCardId, encryptedPayload, expiresAt) {
+        return (await this.db.healthCardQr.upsert({
+            where: { healthCardId },
+            create: { healthCardId, encryptedPayload, expiresAt },
+            update: { encryptedPayload, expiresAt },
+        }));
+    }
+    async findQrByCardId(healthCardId) {
+        return (await this.db.healthCardQr.findUnique({
+            where: { healthCardId },
+        }));
+    }
+    async updateQrPayload(healthCardId, encryptedPayload, expiresAt) {
         return (await this.db.healthCardQr.update({
-            where: { healthCardId: cardId },
+            where: { healthCardId },
+            data: { encryptedPayload, expiresAt },
+        }));
+    }
+    async createHistory(healthCardId, data) {
+        return (await this.db.healthCardHistory.create({
             data: {
-                encryptedPayload,
-                expiresAt,
+                healthCardId,
+                action: data.action,
+                previousStatus: data.previousStatus || null,
+                newStatus: data.newStatus,
+                reason: data.reason || null,
+                performedBy: data.performedBy || null,
             },
         }));
     }
-    async createVerificationLog(qrId, verifierUserId, status) {
-        return (await this.db.qrVerificationLog.create({
+    async findHistoryByCardId(healthCardId) {
+        return (await this.db.healthCardHistory.findMany({
+            where: { healthCardId },
+            orderBy: { createdAt: 'desc' },
+        }));
+    }
+    async createAuditLog(data) {
+        return (await this.db.healthCardAuditLog.create({
             data: {
-                qrId,
-                verifierUserId,
-                status,
+                healthCardId: data.healthCardId,
+                action: data.action,
+                performedBy: data.performedBy || null,
+                details: data.details || null,
             },
         }));
+    }
+    async recordQrScanLog(qrId, verifierUserId, status) {
+        return this.db.qrVerificationLog.create({
+            data: { qrId, verifierUserId, status },
+        });
     }
 };
 exports.HealthCardRepository = HealthCardRepository;

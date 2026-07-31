@@ -31,7 +31,6 @@ async function bootstrap() {
   });
 
   // Global Exception Filters & Validation Pipes
-  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -56,7 +55,13 @@ async function bootstrap() {
   const swaggerPath = process.env.SWAGGER_PATH || 'docs';
   SwaggerModule.setup(swaggerPath, app, document);
 
+  // Register ResponseTransformInterceptor & Global Exception Filters
+  const { ResponseTransformInterceptor } = await import('./common/interceptors/response-transform.interceptor');
+  app.useGlobalInterceptors(new ResponseTransformInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter(logger));
+
   // Enable Graceful Shutdown Hooks
+
   app.enableShutdownHooks();
 
   const port = process.env.PORT || 3000;

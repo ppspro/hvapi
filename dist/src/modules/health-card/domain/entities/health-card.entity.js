@@ -1,13 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QrVerificationLogEntity = exports.HealthCardQrEntity = exports.HealthCardEntity = void 0;
+exports.HealthCardAuditLogEntity = exports.HealthCardHistoryEntity = exports.HealthCardQrEntity = exports.HealthCardEntity = void 0;
 class HealthCardEntity {
 }
 exports.HealthCardEntity = HealthCardEntity;
 class HealthCardQrEntity {
 }
 exports.HealthCardQrEntity = HealthCardQrEntity;
-class QrVerificationLogEntity {
+class HealthCardHistoryEntity {
 }
-exports.QrVerificationLogEntity = QrVerificationLogEntity;
+exports.HealthCardHistoryEntity = HealthCardHistoryEntity;
+class HealthCardAuditLogEntity {
+}
+exports.HealthCardAuditLogEntity = HealthCardAuditLogEntity;
 //# sourceMappingURL=health-card.entity.js.map

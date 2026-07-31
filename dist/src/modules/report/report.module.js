@@ -12,12 +12,13 @@ const report_controller_1 = require("./presentation/controllers/report.controlle
 const report_service_1 = require("./application/use-cases/report.service");
 const report_repository_1 = require("./infrastructure/database/report.repository");
 const database_module_1 = require("../../database/database.module");
+const qr_module_1 = require("../qr/qr.module");
 let ReportModule = class ReportModule {
 };
 exports.ReportModule = ReportModule;
 exports.ReportModule = ReportModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, qr_module_1.QrModule],
         controllers: [report_controller_1.ReportController],
         providers: [
             report_service_1.ReportService,

@@ -19,27 +19,27 @@ __decorate([
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'John' }),
+    (0, swagger_1.ApiProperty)({ example: 'John', nullable: true }),
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "firstName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Doe' }),
+    (0, swagger_1.ApiProperty)({ example: 'Doe', nullable: true }),
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "lastName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '1990-01-01' }),
+    (0, swagger_1.ApiProperty)({ example: '1990-01-01', nullable: true }),
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "dateOfBirth", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Male' }),
+    (0, swagger_1.ApiProperty)({ example: 'Male', nullable: true }),
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "gender", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'O+' }),
+    (0, swagger_1.ApiProperty)({ example: 'O+', nullable: true }),
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "bloodGroup", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '123 St' }),
+    (0, swagger_1.ApiProperty)({ example: '123 St', nullable: true }),
     __metadata("design:type", String)
 ], PatientProfileResponseDto.prototype, "address", void 0);
 __decorate([

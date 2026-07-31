@@ -1,0 +1,34 @@
+import { IImmunisationRepository } from '../../domain/repositories/immunisation.repository.interface';
+import { CreateVaccineDto, CreateVaccinationScheduleDto, CreateVaccinationRecordDto, AdministerDoseDto, DeferDoseDto, CreateCertificateDto, ReminderConfigDto, RecordActionDto } from '../../presentation/dto/create-vaccine.dto';
+import { VaccineResponseDto, VaccinationScheduleResponseDto, VaccinationRecordResponseDto, VaccinationCertificateResponseDto, ReminderConfigResponseDto, ImmunisationStatsResponseDto } from '../../presentation/dto/immunisation-response.dto';
+import { QrService } from "../../../qr/application/use-cases/qr.service";
+import { Logger } from 'nestjs-pino';
+export declare class ImmunisationService {
+    private readonly repository;
+    private readonly qrService;
+    private readonly logger;
+    constructor(repository: IImmunisationRepository, qrService: QrService, logger: Logger);
+    private resolveProfile;
+    private mapVaccine;
+    private mapSchedule;
+    private mapRecord;
+    private mapCert;
+    createVaccine(dto: CreateVaccineDto): Promise<VaccineResponseDto>;
+    getVaccines(): Promise<VaccineResponseDto[]>;
+    createSchedule(dto: CreateVaccinationScheduleDto): Promise<VaccinationScheduleResponseDto>;
+    getSchedules(vaccineId?: string): Promise<VaccinationScheduleResponseDto[]>;
+    createRecord(userId: string, dto: CreateVaccinationRecordDto): Promise<VaccinationRecordResponseDto>;
+    getRecords(userId: string): Promise<VaccinationRecordResponseDto[]>;
+    getRecordById(userId: string, id: string): Promise<VaccinationRecordResponseDto>;
+    updateRecord(userId: string, id: string, dto: Partial<CreateVaccinationRecordDto>): Promise<VaccinationRecordResponseDto>;
+    administerDose(userId: string, id: string, dto: AdministerDoseDto): Promise<VaccinationRecordResponseDto>;
+    completeRecord(userId: string, id: string, dto: RecordActionDto): Promise<VaccinationRecordResponseDto>;
+    deferRecord(userId: string, id: string, dto: DeferDoseDto): Promise<VaccinationRecordResponseDto>;
+    archiveRecord(userId: string, id: string, dto: RecordActionDto): Promise<VaccinationRecordResponseDto>;
+    restoreRecord(userId: string, id: string, dto: RecordActionDto): Promise<VaccinationRecordResponseDto>;
+    generateCertificate(userId: string, dto: CreateCertificateDto): Promise<VaccinationCertificateResponseDto>;
+    getCertificates(userId: string): Promise<VaccinationCertificateResponseDto[]>;
+    configureReminder(userId: string, dto: ReminderConfigDto): Promise<ReminderConfigResponseDto>;
+    searchRecords(query: string): Promise<VaccinationRecordResponseDto[]>;
+    getStatistics(): Promise<ImmunisationStatsResponseDto>;
+}

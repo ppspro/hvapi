@@ -12,12 +12,13 @@ const health_card_controller_1 = require("./presentation/controllers/health-card
 const health_card_service_1 = require("./application/use-cases/health-card.service");
 const health_card_repository_1 = require("./infrastructure/database/health-card.repository");
 const database_module_1 = require("../../database/database.module");
+const qr_module_1 = require("../qr/qr.module");
 let HealthCardModule = class HealthCardModule {
 };
 exports.HealthCardModule = HealthCardModule;
 exports.HealthCardModule = HealthCardModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, qr_module_1.QrModule],
         controllers: [health_card_controller_1.HealthCardController],
         providers: [
             health_card_service_1.HealthCardService,

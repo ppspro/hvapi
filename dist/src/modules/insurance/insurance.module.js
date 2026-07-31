@@ -12,12 +12,13 @@ const insurance_controller_1 = require("./presentation/controllers/insurance.con
 const insurance_service_1 = require("./application/use-cases/insurance.service");
 const insurance_repository_1 = require("./infrastructure/database/insurance.repository");
 const database_module_1 = require("../../database/database.module");
+const qr_module_1 = require("../qr/qr.module");
 let InsuranceModule = class InsuranceModule {
 };
 exports.InsuranceModule = InsuranceModule;
 exports.InsuranceModule = InsuranceModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, qr_module_1.QrModule],
         controllers: [insurance_controller_1.InsuranceController],
         providers: [
             insurance_service_1.InsuranceService,

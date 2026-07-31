@@ -32,6 +32,7 @@ export class FacilityRepository implements IFacilityRepository {
       where: { facilityId },
       include: { doctor: true },
     });
-    return records.map(r => r.doctor) as DoctorProfileEntity[];
+    return records.map(r => r.doctor) as unknown as DoctorProfileEntity[];
   }
+
 }

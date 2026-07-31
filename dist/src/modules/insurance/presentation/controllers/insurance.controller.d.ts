@@ -2,10 +2,31 @@ import { InsuranceService } from '../../application/use-cases/insurance.service'
 import { OnboardInsuranceDto, OnboardInsuranceResponseDto } from '../dto/onboard-insurance.dto';
 import { InsuranceOcrScanDto, InsuranceOcrScanResponseDto } from '../dto/insurance-ocr-scan.dto';
 import { InsuranceOcrConfirmDto, InsuranceOcrConfirmResponseDto } from '../dto/insurance-ocr-confirm.dto';
+import { CreateProviderDto, CreatePlanDto, CreateFullPolicyDto, PolicyActionDto, CreateClaimDraftDto } from '../dto/create-provider.dto';
+import { InsuranceProviderResponseDto, InsurancePlanResponseDto, InsurancePolicyResponseDto, InsuranceClaimDraftResponseDto, InsuranceStatsResponseDto } from '../dto/insurance-response.dto';
 export declare class InsuranceController {
     private readonly insuranceService;
     constructor(insuranceService: InsuranceService);
+    createProvider(dto: CreateProviderDto): Promise<InsuranceProviderResponseDto>;
+    getProviders(): Promise<InsuranceProviderResponseDto[]>;
+    createPlan(dto: CreatePlanDto): Promise<InsurancePlanResponseDto>;
+    getPlans(providerId?: string): Promise<InsurancePlanResponseDto[]>;
+    createFullPolicy(req: any, dto: CreateFullPolicyDto): Promise<InsurancePolicyResponseDto>;
+    getPolicies(req: any): Promise<InsurancePolicyResponseDto[]>;
+    searchPolicies(query: string): Promise<InsurancePolicyResponseDto[]>;
+    getStatistics(): Promise<InsuranceStatsResponseDto>;
+    getPolicyById(req: any, id: string): Promise<InsurancePolicyResponseDto>;
+    updatePolicyDetails(req: any, id: string, dto: Partial<CreateFullPolicyDto>): Promise<InsurancePolicyResponseDto>;
+    activatePolicy(req: any, id: string, dto: PolicyActionDto): Promise<InsurancePolicyResponseDto>;
+    renewPolicy(req: any, id: string, dto: PolicyActionDto): Promise<InsurancePolicyResponseDto>;
+    suspendPolicy(req: any, id: string, dto: PolicyActionDto): Promise<InsurancePolicyResponseDto>;
+    cancelPolicy(req: any, id: string, dto: PolicyActionDto): Promise<InsurancePolicyResponseDto>;
+    archivePolicy(req: any, id: string, dto: PolicyActionDto): Promise<InsurancePolicyResponseDto>;
+    restorePolicy(req: any, id: string, dto: PolicyActionDto): Promise<InsurancePolicyResponseDto>;
+    verifyPolicy(req: any, id: string): Promise<InsurancePolicyResponseDto>;
+    createClaimDraft(req: any, dto: CreateClaimDraftDto): Promise<InsuranceClaimDraftResponseDto>;
+    getClaimDrafts(req: any): Promise<InsuranceClaimDraftResponseDto[]>;
     onboardInsurance(req: any, dto: OnboardInsuranceDto): Promise<OnboardInsuranceResponseDto>;
     scanInsuranceCard(req: any, dto: InsuranceOcrScanDto): Promise<InsuranceOcrScanResponseDto>;
-    confirmOcrData(req: any, dto: InsuranceOcrConfirmDto): Promise<InsuranceOcrConfirmResponseDto>;
+    confirmOcrScan(req: any, dto: InsuranceOcrConfirmDto): Promise<InsuranceOcrConfirmResponseDto>;
 }

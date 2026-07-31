@@ -4,13 +4,51 @@ import { OnboardEmergencyInfoDto, OnboardEmergencyInfoResponseDto } from '../dto
 import { OnboardFamilyInviteDto, OnboardFamilyInviteResponseDto } from '../dto/onboard-family-invite.dto';
 import { UpdateFamilyConsentDto, UpdateFamilyConsentResponseDto } from '../dto/update-family-consent.dto';
 import { PatientProfileResponseDto } from '../dto/patient-profile.dto';
+import { RegisterPatientResponseDto } from '../dto/register-patient.dto';
+import { OnboardInsuranceDto, OnboardInsuranceResponseDto } from '../dto/onboard-insurance.dto';
+import { OnboardHealthCardResponseDto } from '../dto/onboard-health-card.dto';
+import { OnboardingProgressResponseDto } from '../dto/onboarding-progress.dto';
+import { UpdateBasicInfoDto } from '../dto/update-basic-info.dto';
+import { UpdateContactDto } from '../dto/update-contact.dto';
+import { UpdateAddressDto } from '../dto/update-address.dto';
+import { UpdatePreferencesDto } from '../dto/update-preferences.dto';
+import { UpdateMedicalSummaryDto } from '../dto/update-medical-summary.dto';
+import { FullPatientProfileResponseDto } from '../dto/full-patient-profile.dto';
+import { ProfileCompletionResponseDto, ProfileTimelineResponseDto } from '../dto/profile-completion.dto';
 export declare class PatientController {
     private readonly patientService;
     constructor(patientService: PatientService);
+    register(req: any): Promise<RegisterPatientResponseDto>;
+    getRegistrationStatus(req: any): Promise<any>;
+    resumeRegistration(req: any, step: string): Promise<any>;
     onboardDemographics(req: any, dto: OnboardDemographicsDto): Promise<OnboardDemographicsResponseDto>;
-    onboardEmergencyInfo(req: any, dto: OnboardEmergencyInfoDto): Promise<OnboardEmergencyInfoResponseDto>;
+    updateDemographics(req: any, dto: OnboardDemographicsDto): Promise<OnboardDemographicsResponseDto>;
+    onboardEmergencyContact(req: any, dto: OnboardEmergencyInfoDto): Promise<OnboardEmergencyInfoResponseDto>;
+    updateEmergencyContact(req: any, dto: OnboardEmergencyInfoDto): Promise<OnboardEmergencyInfoResponseDto>;
+    onboardInsurance(req: any, dto: OnboardInsuranceDto): Promise<OnboardInsuranceResponseDto>;
+    updateInsurance(req: any, dto: OnboardInsuranceDto): Promise<OnboardInsuranceResponseDto>;
+    onboardHealthCard(req: any): Promise<OnboardHealthCardResponseDto>;
     onboardFamilyInvite(req: any, dto: OnboardFamilyInviteDto): Promise<OnboardFamilyInviteResponseDto>;
-    updateFamilyConsent(consentId: string, dto: UpdateFamilyConsentDto): Promise<UpdateFamilyConsentResponseDto>;
+    getOnboardingProgress(req: any): Promise<OnboardingProgressResponseDto>;
+    completeOnboarding(req: any): Promise<any>;
+    getCompletionPercentage(req: any): Promise<{
+        completionPercentage: number;
+    }>;
     getProfile(req: any): Promise<PatientProfileResponseDto>;
     updateProfile(req: any, dto: OnboardDemographicsDto): Promise<PatientProfileResponseDto>;
+    updateFamilyConsent(consentId: string, dto: UpdateFamilyConsentDto): Promise<UpdateFamilyConsentResponseDto>;
+    getFullProfile(req: any): Promise<FullPatientProfileResponseDto>;
+    updateBasicInfo(req: any, dto: UpdateBasicInfoDto): Promise<FullPatientProfileResponseDto>;
+    updateContact(req: any, dto: UpdateContactDto): Promise<any>;
+    updateAddress(req: any, dto: UpdateAddressDto): Promise<any>;
+    updatePreferences(req: any, dto: UpdatePreferencesDto): Promise<any>;
+    updateMedicalSummary(req: any, dto: UpdateMedicalSummaryDto): Promise<any>;
+    uploadPhoto(req: any, body: {
+        photoUrl: string;
+        photoKey: string;
+    }): Promise<any>;
+    deletePhoto(req: any): Promise<any>;
+    getProfileCompletion(req: any): Promise<ProfileCompletionResponseDto>;
+    getProfileTimeline(req: any): Promise<ProfileTimelineResponseDto>;
+    getProfileActivity(req: any): Promise<any>;
 }

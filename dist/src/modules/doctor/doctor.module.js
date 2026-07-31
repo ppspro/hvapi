@@ -12,12 +12,13 @@ const doctor_controller_1 = require("./presentation/controllers/doctor.controlle
 const doctor_service_1 = require("./application/use-cases/doctor.service");
 const doctor_repository_1 = require("./infrastructure/database/doctor.repository");
 const database_module_1 = require("../../database/database.module");
+const qr_module_1 = require("../qr/qr.module");
 let DoctorModule = class DoctorModule {
 };
 exports.DoctorModule = DoctorModule;
 exports.DoctorModule = DoctorModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, qr_module_1.QrModule],
         controllers: [doctor_controller_1.DoctorController],
         providers: [
             doctor_service_1.DoctorService,

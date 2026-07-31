@@ -10,14 +10,29 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     mockAuthRepository = {
+      db: {
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'user-123', phone: '+14155552671', status: 'ACTIVE' }),
+        },
+      },
       findUserByPhone: jest.fn(),
       createUser: jest.fn(),
       createOtp: jest.fn(),
       findOtpByChallengeId: jest.fn(),
       markOtpVerified: jest.fn(),
-      createSession: jest.fn(),
+      incrementOtpAttempts: jest.fn(),
+      incrementOtpResends: jest.fn(),
+      createSession: jest.fn().mockResolvedValue({ id: 'session-123' }),
+      findActiveSessions: jest.fn().mockResolvedValue([]),
+      invalidateSession: jest.fn(),
+      invalidateAllSessions: jest.fn(),
+      invalidateOtherSessions: jest.fn(),
       createRefreshToken: jest.fn(),
+      findRefreshToken: jest.fn().mockResolvedValue(null),
+      revokeRefreshToken: jest.fn(),
       revokeAllUserTokens: jest.fn(),
+      createAuditLog: jest.fn(),
+      findUserRoles: jest.fn().mockResolvedValue(['PATIENT']),
     };
 
     mockJwtService = {

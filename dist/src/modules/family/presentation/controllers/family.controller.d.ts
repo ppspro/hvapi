@@ -1,0 +1,32 @@
+import { FamilyService } from '../../application/use-cases/family.service';
+import { CreateInvitationDto, InvitationResponseDto } from '../dto/invitation.dto';
+import { UpdateFamilyMemberDto, FamilyMemberResponseDto } from '../dto/family-member.dto';
+import { CreateGuardianDto, UpdateGuardianDto } from '../dto/guardian.dto';
+import { CreateDependentDto, UpdateDependentDto } from '../dto/dependent.dto';
+import { CreateConsentDto, UpdateConsentDto, ConsentRecordResponseDto, ConsentHistoryResponseDto } from '../dto/consent.dto';
+export declare class FamilyController {
+    private readonly familyService;
+    constructor(familyService: FamilyService);
+    createInvitation(req: any, dto: CreateInvitationDto): Promise<InvitationResponseDto>;
+    resendInvitation(req: any, id: string): Promise<InvitationResponseDto>;
+    acceptInvitation(req: any, id: string): Promise<any>;
+    rejectInvitation(req: any, id: string): Promise<any>;
+    cancelInvitation(req: any, id: string): Promise<any>;
+    getInvitations(req: any): Promise<InvitationResponseDto[]>;
+    getFamilyMembers(req: any): Promise<FamilyMemberResponseDto[]>;
+    getFamilyMemberById(req: any, id: string): Promise<FamilyMemberResponseDto>;
+    updateFamilyMember(req: any, id: string, dto: UpdateFamilyMemberDto): Promise<FamilyMemberResponseDto>;
+    removeFamilyMember(req: any, id: string): Promise<any>;
+    grantConsent(req: any, dto: CreateConsentDto): Promise<ConsentRecordResponseDto>;
+    updateConsent(req: any, id: string, dto: UpdateConsentDto): Promise<ConsentRecordResponseDto>;
+    revokeConsent(req: any, id: string): Promise<any>;
+    getConsents(req: any): Promise<ConsentRecordResponseDto[]>;
+    getConsentHistory(req: any): Promise<ConsentHistoryResponseDto[]>;
+    getGuardians(req: any): Promise<FamilyMemberResponseDto[]>;
+    createGuardian(req: any, dto: CreateGuardianDto): Promise<FamilyMemberResponseDto>;
+    updateGuardian(req: any, id: string, dto: UpdateGuardianDto): Promise<FamilyMemberResponseDto>;
+    getDependents(req: any): Promise<FamilyMemberResponseDto[]>;
+    createDependent(req: any, dto: CreateDependentDto): Promise<FamilyMemberResponseDto>;
+    updateDependent(req: any, id: string, dto: UpdateDependentDto): Promise<FamilyMemberResponseDto>;
+    removeDependent(req: any, id: string): Promise<any>;
+}

@@ -1,23 +1,26 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VerifyQrDto {
-  @ApiProperty({ example: 'encrypted.payload.hash', description: 'Encrypted QR string to verify' })
+  @ApiProperty({ example: 'HV360-1234-5678-9012', description: 'QR payload or card number string' })
   @IsNotEmpty()
   @IsString()
   qrPayload!: string;
 }
 
+export class PatientDetailsDto {
+  @ApiProperty({ example: 'PT-12345' }) patientNumber!: string;
+  @ApiProperty({ example: 'John' }) firstName!: string;
+  @ApiProperty({ example: 'Doe' }) lastName!: string;
+  @ApiProperty({ example: '1990-01-01' }) dateOfBirth!: string;
+  @ApiProperty({ example: 'O+' }) bloodGroup!: string;
+}
+
 export class VerifyQrResponseDto {
-  @ApiProperty({ example: true, description: 'Verification validity status' })
-  isValid!: boolean;
-
-  @ApiProperty({ example: 'John Doe', description: 'Patient name if valid' })
-  patientName!: string;
-
-  @ApiProperty({ example: 'HV360-1234-5678-9012', description: 'Card identification number if valid' })
-  cardNumber!: string;
-
-  @ApiProperty({ example: 'QR verification completed successfully', description: 'Status message' })
-  message!: string;
+  @ApiProperty({ example: true }) isValid!: boolean;
+  @ApiProperty({ example: 'VERIFIED', required: false }) status?: string;
+  @ApiProperty({ example: 'John Doe', required: false }) patientName?: string;
+  @ApiProperty({ example: 'HV360-1234-5678-9012', required: false }) cardNumber?: string;
+  @ApiProperty({ example: 'QR verification completed successfully', required: false }) message?: string;
+  @ApiProperty({ type: PatientDetailsDto, required: false }) patientDetails?: PatientDetailsDto;
 }

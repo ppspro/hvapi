@@ -3,9 +3,11 @@ import { DoctorController } from './presentation/controllers/doctor.controller';
 import { DoctorService } from './application/use-cases/doctor.service';
 import { DoctorRepository } from './infrastructure/database/doctor.repository';
 import { DatabaseModule } from '@database/database.module';
+import { QrModule } from '@modules/qr/qr.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, QrModule],
+
   controllers: [DoctorController],
   providers: [
     DoctorService,

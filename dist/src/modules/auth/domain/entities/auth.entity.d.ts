@@ -11,6 +11,8 @@ export declare class AuthOtpEntity {
     otpHash: string;
     expiresAt: Date;
     isVerified: boolean;
+    attempts: number;
+    resendCount: number;
     createdAt: Date;
 }
 export declare class RefreshTokenEntity {

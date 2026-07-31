@@ -1,13 +1,15 @@
 export declare class PatientProfileEntity {
     id: string;
     userId: string;
-    firstName: string;
-    lastName: string;
-    dateOfBirth: Date;
-    gender: string;
+    patientNumber: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    dateOfBirth: Date | null;
+    gender: string | null;
     bloodGroup: string | null;
     address: string | null;
     onboardingStep: number;
+    status: string;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -23,13 +23,15 @@ export class PatientRepository implements IPatientRepository {
     return (await this.db.patientProfile.create({
       data: {
         userId,
-        firstName: data.firstName!,
-        lastName: data.lastName!,
-        dateOfBirth: new Date(data.dateOfBirth!),
-        gender: data.gender!,
+        patientNumber: data.patientNumber || null,
+        firstName: data.firstName || null,
+        lastName: data.lastName || null,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        gender: data.gender || null,
         bloodGroup: data.bloodGroup || null,
         address: data.address || null,
-        onboardingStep: 2,
+        onboardingStep: data.onboardingStep || 1,
+        status: data.status || 'DRAFT',
       },
     })) as PatientProfileEntity;
   }
@@ -69,12 +71,65 @@ export class PatientRepository implements IPatientRepository {
     })) as EmergencyContactEntity | null;
   }
 
+  async createInsurancePolicy(profileId: string, data: any): Promise<any> {
+    return await this.db.insurancePolicy.create({
+      data: {
+        patientProfileId: profileId,
+        providerName: data.providerName,
+        policyNumber: data.policyNumber,
+        coverageDetails: data.coverageDetails || null,
+        expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+        secondaryProvider: data.secondaryProvider || null,
+        secondaryPolicyNumber: data.secondaryPolicyNumber || null,
+        secondaryCoverage: data.secondaryCoverage || null,
+        verificationStatus: data.verificationStatus || 'PENDING',
+      },
+    });
+  }
+
+  async updateInsurancePolicy(profileId: string, data: any): Promise<any> {
+    const updateData: any = { ...data };
+    if (data.expiryDate) {
+      updateData.expiryDate = new Date(data.expiryDate);
+    }
+    return await this.db.insurancePolicy.update({
+      where: { patientProfileId: profileId },
+      data: updateData,
+    });
+  }
+
+  async findInsurancePolicyByProfileId(profileId: string): Promise<any | null> {
+    return await this.db.insurancePolicy.findUnique({
+      where: { patientProfileId: profileId },
+    });
+  }
+
+  async createHealthCard(profileId: string, data: any): Promise<any> {
+    return await this.db.healthCard.create({
+      data: {
+        patientProfileId: profileId,
+        cardNumber: data.cardNumber,
+        status: data.status || 'ACTIVE',
+        issuedAt: data.issuedAt ? new Date(data.issuedAt) : new Date(),
+        expiresAt: new Date(data.expiresAt),
+      },
+    });
+  }
+
+  async findHealthCardByProfileId(profileId: string): Promise<any | null> {
+    return await this.db.healthCard.findUnique({
+      where: { patientProfileId: profileId },
+    });
+  }
+
   async createFamilyConsent(profileId: string, inviteePhone: string, relationship: string): Promise<FamilyConsentEntity> {
+    const { randomUUID } = await import('crypto');
     return (await this.db.familyConsent.create({
       data: {
         patientProfileId: profileId,
         inviteePhone,
         relationship,
+        invitationToken: randomUUID(),
         status: 'PENDING',
       },
     })) as FamilyConsentEntity;
@@ -103,4 +158,33 @@ export class PatientRepository implements IPatientRepository {
       },
     })) as FamilyMemberEntity;
   }
+
+  async createProfileAuditLog(
+    profileId: string,
+    action: string,
+    fieldChanged?: string,
+    previousValue?: string,
+    newValue?: string,
+    performedByUserId?: string,
+  ): Promise<void> {
+    await this.db.profileAuditLog.create({
+      data: {
+        patientProfileId: profileId,
+        action,
+        fieldChanged: fieldChanged || null,
+        previousValue: previousValue || null,
+        newValue: newValue || null,
+        performedByUserId: performedByUserId || null,
+      },
+    });
+  }
+
+  async findProfileAuditLogs(profileId: string): Promise<any[]> {
+    return await this.db.profileAuditLog.findMany({
+      where: { patientProfileId: profileId },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+  }
 }
+

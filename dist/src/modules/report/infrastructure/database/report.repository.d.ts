@@ -1,18 +1,28 @@
 import { DatabaseService } from "../../../../database/database.service";
 import { IReportRepository } from '../../domain/repositories/report.repository.interface';
-import { MedicalReportEntity, ReportAttachmentEntity } from '../../domain/entities/report.entity';
+import { MedicalReportEntity, ReportAttachmentEntity, ReportVersionEntity, ReportAuditLogEntity } from '../../domain/entities/report.entity';
 export declare class ReportRepository implements IReportRepository {
     private readonly db;
     constructor(db: DatabaseService);
     findProfileByUserId(userId: string): Promise<{
         id: string;
     } | null>;
-    findReportsByProfileId(profileId: string): Promise<(MedicalReportEntity & {
-        attachments: ReportAttachmentEntity[];
-    })[]>;
-    findReportById(reportId: string): Promise<(MedicalReportEntity & {
-        attachments: ReportAttachmentEntity[];
-    }) | null>;
-    createReport(profileId: string, title: string, category: string, prescribedBy?: string): Promise<MedicalReportEntity>;
-    createAttachment(reportId: string, fileName: string, fileSize: number, mimeType: string, storageUrl: string): Promise<ReportAttachmentEntity>;
+    createReport(data: any): Promise<MedicalReportEntity>;
+    findReportById(id: string, includeDeleted?: boolean): Promise<MedicalReportEntity | null>;
+    findReportsByProfile(patientProfileId: string, category?: string): Promise<MedicalReportEntity[]>;
+    updateReport(id: string, data: any): Promise<MedicalReportEntity>;
+    softDeleteReport(id: string): Promise<void>;
+    restoreReport(id: string): Promise<MedicalReportEntity>;
+    searchReports(patientProfileId: string, query: string): Promise<MedicalReportEntity[]>;
+    getCategoriesCount(patientProfileId: string): Promise<Record<string, number>>;
+    getTimeline(patientProfileId: string): Promise<any[]>;
+    createAttachment(reportId: string, data: any): Promise<ReportAttachmentEntity>;
+    createReportVersion(data: any): Promise<ReportVersionEntity>;
+    findReportVersions(medicalReportId: string): Promise<ReportVersionEntity[]>;
+    createAuditLog(data: {
+        medicalReportId: string;
+        action: string;
+        performedBy?: string;
+        details?: string;
+    }): Promise<ReportAuditLogEntity>;
 }

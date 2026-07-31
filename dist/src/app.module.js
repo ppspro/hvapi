@@ -24,6 +24,10 @@ const report_module_1 = require("./modules/report/report.module");
 const insurance_module_1 = require("./modules/insurance/insurance.module");
 const cms_module_1 = require("./modules/cms/cms.module");
 const admin_module_1 = require("./modules/admin/admin.module");
+const family_module_1 = require("./modules/family/family.module");
+const medical_record_module_1 = require("./modules/medical-record/medical-record.module");
+const qr_module_1 = require("./modules/qr/qr.module");
+const immunisation_module_1 = require("./modules/immunisation/immunisation.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -53,6 +57,10 @@ exports.AppModule = AppModule = __decorate([
             insurance_module_1.InsuranceModule,
             cms_module_1.CmsModule,
             admin_module_1.AdminModule,
+            family_module_1.FamilyModule,
+            medical_record_module_1.MedicalRecordModule,
+            qr_module_1.QrModule,
+            immunisation_module_1.ImmunisationModule,
         ],
     })
 ], AppModule);
