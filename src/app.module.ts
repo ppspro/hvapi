@@ -22,6 +22,7 @@ import { QrModule } from '@modules/qr/qr.module';
 import { ImmunisationModule } from '@modules/immunisation/immunisation.module';
 import { StaffModule } from '@modules/staff/staff.module';
 import { ScheduleModule } from '@modules/schedule/schedule.module';
+import { ReportsModule } from '@modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { ScheduleModule } from '@modules/schedule/schedule.module';
     ImmunisationModule,
     StaffModule,
     ScheduleModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

@@ -2131,6 +2131,111 @@ model CmsAuditLog {
   @@map("cms_audit_logs")
 }
 
+// ─── Phase 19: Enterprise Reports & Analytics Platform ───────────────────────
+
+enum ReportType {
+  SUMMARY
+  DETAILED
+  STATISTICAL
+  COMPLIANCE
+  AUDIT
+  CUSTOM
+}
+
+enum ExportFormat {
+  PDF
+  CSV
+  XLSX
+  JSON
+}
+
+enum GeneratedReportStatus {
+  GENERATED
+  EXPORTED
+  ARCHIVED
+}
+
+model ReportDefinition {
+  id            String         @id @default(uuid())
+  name          String
+  code          String         @unique
+  description   String?
+  reportType    ReportType     @default(SUMMARY) @map("report_type")
+  module        String
+  configuration String?
+  isSystem      Boolean        @default(false) @map("is_system")
+  isActive      Boolean        @default(true) @map("is_active")
+  createdBy     String?        @map("created_by")
+  updatedBy     String?        @map("updated_by")
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  deletedAt     DateTime?      @map("deleted_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  generatedReports GeneratedReport[]
+
+  @@map("report_definitions")
+}
+
+model GeneratedReport {
+  id                 String                @id @default(uuid())
+  reportDefinitionId String?               @map("report_definition_id")
+  generatedBy        String?               @map("generated_by")
+  reportName         String                @map("report_name")
+  filters            String?
+  exportFormat       ExportFormat          @default(JSON) @map("export_format")
+  filePath           String?               @map("file_path")
+  status             GeneratedReportStatus @default(GENERATED)
+  generatedAt        DateTime              @default(now()) @map("generated_at")
+  expiresAt          DateTime?             @map("expires_at")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+
+  reportDefinition   ReportDefinition?     @relation(fields: [reportDefinitionId], references: [id], onDelete: SetNull)
+
+  @@map("generated_reports")
+}
+
+model DashboardWidget {
+  id           String    @id @default(uuid())
+  title        String
+  widgetCode   String    @unique @map("widget_code")
+  widgetType   String    @map("widget_type")
+  module       String
+  configuration String?
+  displayOrder Int       @default(0) @map("display_order")
+  isEnabled    Boolean   @default(true) @map("is_enabled")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("dashboard_widgets")
+}
+
+model AnalyticsSnapshot {
+  id           String    @id @default(uuid())
+  module       String
+  metric       String
+  metricValue  Float     @map("metric_value")
+  snapshotDate DateTime  @map("snapshot_date")
+  metadata     String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([module, metric, snapshotDate])
+  @@map("analytics_snapshots")
+}
+
+model AnalyticsReportAuditLog {
+  id          String   @id @default(uuid())
+  reportId    String?  @map("report_id")
+  action      String
+  performedBy String?  @map("performed_by")
+  details     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("analytics_report_audit_logs")
+}
+
+
 
 
 
