@@ -1,15 +1,30 @@
 import { DatabaseService } from "../../../../database/database.service";
 import { IAdminRepository } from '../../domain/repositories/admin.repository.interface';
-import { AuditLogEntity } from '../../domain/entities/admin.entity';
+import { AdminDashboardSummaryEntity, PermissionGroupEntity, PermissionEntity, OrganizationEntity, PlatformSettingEntity, ManagedUserEntity } from '../../domain/entities/admin.entity';
 export declare class AdminRepository implements IAdminRepository {
     private readonly db;
     constructor(db: DatabaseService);
-    getStats(): Promise<{
-        totalPatients: number;
-        totalDoctors: number;
-        pendingOcrReviews: number;
-        systemLogsCount: number;
-    }>;
-    findAuditLogs(): Promise<AuditLogEntity[]>;
-    createAuditLog(userId: string, action: string, details?: string, ipAddress?: string): Promise<AuditLogEntity>;
+    getDashboardSummary(): Promise<AdminDashboardSummaryEntity>;
+    findUsers(query?: string, status?: string): Promise<ManagedUserEntity[]>;
+    findUserById(id: string): Promise<ManagedUserEntity | null>;
+    updateUserStatus(id: string, status: string): Promise<ManagedUserEntity>;
+    assignUserRoles(userId: string, roleNames: string[]): Promise<ManagedUserEntity>;
+    softDeleteUser(id: string): Promise<void>;
+    restoreUser(id: string): Promise<ManagedUserEntity>;
+    findRoles(): Promise<any[]>;
+    findPermissions(): Promise<PermissionEntity[]>;
+    findPermissionGroups(): Promise<PermissionGroupEntity[]>;
+    createPermissionGroup(name: string, description?: string): Promise<PermissionGroupEntity>;
+    createPermission(code: string, name: string, description?: string, groupId?: string): Promise<PermissionEntity>;
+    assignPermissionsToRole(roleId: string, permissionIds: string[]): Promise<any>;
+    getPermissionMatrix(): Promise<any>;
+    createOrganization(data: any): Promise<OrganizationEntity>;
+    findOrganizations(): Promise<OrganizationEntity[]>;
+    findOrganizationById(id: string): Promise<OrganizationEntity | null>;
+    updateOrganization(id: string, data: any): Promise<OrganizationEntity>;
+    softDeleteOrganization(id: string): Promise<void>;
+    getSettings(category?: string): Promise<PlatformSettingEntity[]>;
+    upsertSetting(key: string, value: string, category: string, valueType?: string, description?: string, updatedBy?: string): Promise<PlatformSettingEntity>;
+    findAuditLogs(limit?: number): Promise<any[]>;
+    createAuditLog(userId: string, action: string, details?: string, ipAddress?: string): Promise<any>;
 }

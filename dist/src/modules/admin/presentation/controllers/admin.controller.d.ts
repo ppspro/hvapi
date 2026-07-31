@@ -1,8 +1,30 @@
 import { AdminService } from '../../application/use-cases/admin.service';
-import { AdminDashboardStatsDto, AuditLogResponseDto } from '../dto/admin.dto';
+import { AdminDashboardStatsDto, AdminDashboardSummaryResponseDto, ManagedUserResponseDto, OrganizationResponseDto, PlatformSettingResponseDto, AuditLogResponseDto, PermissionGroupResponseDto, PermissionResponseDto } from '../dto/admin.dto';
+import { UpdateUserStatusDto, AssignUserRolesDto, CreatePermissionGroupDto, CreatePermissionDto, AssignRolePermissionsDto, CreateOrganizationDto, UpsertPlatformSettingDto } from '../dto/admin-enterprise.dto';
 export declare class AdminController {
     private readonly adminService;
     constructor(adminService: AdminService);
     getDashboardStats(): Promise<AdminDashboardStatsDto>;
+    getDashboardSummary(): Promise<AdminDashboardSummaryResponseDto>;
+    getUsers(query?: string, status?: string): Promise<ManagedUserResponseDto[]>;
+    getUserById(id: string): Promise<ManagedUserResponseDto>;
+    updateUserStatus(req: any, id: string, dto: UpdateUserStatusDto): Promise<ManagedUserResponseDto>;
+    assignUserRoles(req: any, id: string, dto: AssignUserRolesDto): Promise<ManagedUserResponseDto>;
+    softDeleteUser(req: any, id: string): Promise<any>;
+    restoreUser(req: any, id: string): Promise<ManagedUserResponseDto>;
+    getRoles(): Promise<any[]>;
+    getPermissions(): Promise<PermissionResponseDto[]>;
+    getPermissionGroups(): Promise<PermissionGroupResponseDto[]>;
+    createPermissionGroup(req: any, dto: CreatePermissionGroupDto): Promise<PermissionGroupResponseDto>;
+    createPermission(req: any, dto: CreatePermissionDto): Promise<PermissionResponseDto>;
+    assignRolePermissions(req: any, id: string, dto: AssignRolePermissionsDto): Promise<any>;
+    getPermissionMatrix(): Promise<any>;
+    createOrganization(req: any, dto: CreateOrganizationDto): Promise<OrganizationResponseDto>;
+    getOrganizations(): Promise<OrganizationResponseDto[]>;
+    getOrganizationById(id: string): Promise<OrganizationResponseDto>;
+    updateOrganization(req: any, id: string, dto: Partial<CreateOrganizationDto>): Promise<OrganizationResponseDto>;
+    softDeleteOrganization(req: any, id: string): Promise<any>;
+    getSettings(category?: string): Promise<PlatformSettingResponseDto[]>;
+    upsertSetting(req: any, dto: UpsertPlatformSettingDto): Promise<PlatformSettingResponseDto>;
     getAuditLogs(): Promise<AuditLogResponseDto[]>;
 }

@@ -47,6 +47,7 @@ model Role {
   name        RoleName   @unique
   description String?
   userRoles   UserRole[]
+  rolePermissions RolePermission[]
 
   @@map("roles")
 }
@@ -1898,6 +1899,87 @@ model ScheduleAuditLog {
 
   @@map("schedule_audit_logs")
 }
+
+// ─── Phase 17: Enterprise Administration Platform ───────────────────────────
+
+model PermissionGroup {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  permissions Permission[]
+
+  @@map("permission_groups")
+}
+
+model Permission {
+  id          String            @id @default(uuid())
+  groupId     String?           @map("group_id")
+  code        String            @unique
+  name        String
+  description String?
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  group       PermissionGroup?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Organization {
+  id              String   @id @default(uuid())
+  name            String
+  code            String   @unique
+  logoUrl         String?  @map("logo_url")
+  primaryColor    String?  @map("primary_color")
+  secondaryColor  String?  @map("secondary_color")
+  phone           String?
+  email           String?
+  website         String?
+  streetAddress   String?  @map("street_address")
+  city            String?
+  district        String?
+  state           String?
+  country         String   @default("Pakistan")
+  timezone        String   @default("Asia/Karachi")
+  language        String   @default("en")
+  isDeleted       Boolean  @default(false) @map("is_deleted")
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("organizations")
+}
+
+model PlatformSetting {
+  id          String   @id @default(uuid())
+  category    String
+  key         String   @unique
+  value       String
+  valueType   String   @default("STRING") @map("value_type")
+  description String?
+  isPublic    Boolean  @default(false) @map("is_public")
+  updatedBy   String?  @map("updated_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("platform_settings")
+}
+
 
 
 
