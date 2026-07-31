@@ -33,6 +33,7 @@ const schedule_module_1 = require("./modules/schedule/schedule.module");
 const reports_module_1 = require("./modules/reports/reports.module");
 const governance_module_1 = require("./modules/governance/governance.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
+const ocr_module_1 = require("./modules/ocr/ocr.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -71,6 +72,7 @@ exports.AppModule = AppModule = __decorate([
             reports_module_1.ReportsModule,
             governance_module_1.GovernanceModule,
             notifications_module_1.NotificationsModule,
+            ocr_module_1.OcrModule,
         ],
     })
 ], AppModule);

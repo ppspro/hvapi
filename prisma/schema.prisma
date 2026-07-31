@@ -2526,6 +2526,145 @@ model NotificationAuditLog {
   @@map("notification_audit_logs")
 }
 
+// ─── Phase 22: Enterprise OCR & Intelligent Document Processing Platform ─────
+
+enum OCRJobStatus {
+  QUEUED
+  PREPROCESSING
+  OCR_RUNNING
+  EXTRACTING
+  REVIEW_REQUIRED
+  COMPLETED
+  FAILED
+}
+
+enum OCRDocumentType {
+  UNKNOWN
+  HEALTH_CARD
+  PASSPORT
+  DRIVERS_LICENSE
+  INSURANCE_DOCUMENT
+  LAB_REPORT
+  DIAGNOSTIC_REPORT
+  MEDICAL_REPORT
+  PRESCRIPTION
+  REFERRAL
+  DISCHARGE_SUMMARY
+  CONSENT_FORM
+  REGISTRATION_FORM
+  VACCINATION_RECORD
+  MEDICAL_CERTIFICATE
+  OTHER
+}
+
+enum OCRConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model OCRJob {
+  id                   String             @id @default(uuid())
+  medicalAttachmentId  String             @map("medical_attachment_id")
+  documentType         OCRDocumentType    @default(UNKNOWN) @map("document_type")
+  status               OCRJobStatus       @default(QUEUED)
+  submittedBy          String?            @map("submitted_by")
+  startedAt            DateTime?          @map("started_at")
+  completedAt          DateTime?          @map("completed_at")
+  processingTimeMs     Int?               @map("processing_time_ms")
+  overallConfidence    Float?             @map("overall_confidence")
+  confidenceLevel      OCRConfidenceLevel @default(MEDIUM) @map("confidence_level")
+  failureReason        String?            @map("failure_reason")
+  isDeleted            Boolean            @default(false) @map("is_deleted")
+  deletedAt            DateTime?          @map("deleted_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  pages                OCRPage[]
+  extractedFields      ExtractedField[]
+  verifications        OCRVerification[]
+
+  @@map("ocr_jobs")
+}
+
+model OCRPage {
+  id                 String    @id @default(uuid())
+  ocrJobId           String    @map("ocr_job_id")
+  pageNumber         Int       @map("page_number")
+  imagePath          String?   @map("image_path")
+  rawText            String?   @map("raw_text")
+  confidence         Float     @default(0.0)
+  rotationAngle      Float     @default(0.0) @map("rotation_angle")
+  processingMetadata String?   @map("processing_metadata")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  ocrJob             OCRJob    @relation(fields: [ocrJobId], references: [id], onDelete: Cascade)
+
+  @@map("ocr_pages")
+}
+
+model ExtractedField {
+  id               String   @id @default(uuid())
+  ocrJobId         String   @map("ocr_job_id")
+  fieldName        String   @map("field_name")
+  fieldValue       String   @map("field_value")
+  confidence       Float    @default(0.0)
+  boundingBox      String?  @map("bounding_box")
+  validationStatus String   @default("PENDING") @map("validation_status")
+  requiresReview   Boolean  @default(false) @map("requires_review")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  ocrJob           OCRJob   @relation(fields: [ocrJobId], references: [id], onDelete: Cascade)
+
+  @@map("extracted_fields")
+}
+
+model OCRTemplate {
+  id               String          @id @default(uuid())
+  code             String          @unique
+  name             String
+  documentType     OCRDocumentType @map("document_type")
+  fieldDefinitions String?         @map("field_definitions")
+  validationRules  String?         @map("validation_rules")
+  version          Int             @default(1)
+  isActive         Boolean         @default(true) @map("is_active")
+  isDeleted        Boolean         @default(false) @map("is_deleted")
+  deletedAt        DateTime?       @map("deleted_at")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  @@map("ocr_templates")
+}
+
+model OCRVerification {
+  id           String    @id @default(uuid())
+  ocrJobId     String    @map("ocr_job_id")
+  reviewedBy   String    @map("reviewed_by")
+  reviewStatus String    @default("APPROVED") @map("review_status")
+  reviewNotes  String?   @map("review_notes")
+  completedAt  DateTime? @map("completed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  ocrJob       OCRJob    @relation(fields: [ocrJobId], references: [id], onDelete: Cascade)
+
+  @@map("ocr_verifications")
+}
+
+model OCRAuditLog {
+  id          String   @id @default(uuid())
+  ocrJobId    String?  @map("ocr_job_id")
+  action      String
+  performedBy String?  @map("performed_by")
+  details     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("ocr_audit_logs")
+}
+
+
 
 
 
