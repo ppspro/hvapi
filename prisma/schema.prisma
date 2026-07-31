@@ -2235,6 +2235,176 @@ model AnalyticsReportAuditLog {
   @@map("analytics_report_audit_logs")
 }
 
+// ─── Phase 20: Enterprise Governance, Audit & Configuration Platform ─────────
+
+enum GovernanceStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ConfigurationType {
+  SYSTEM
+  SECURITY
+  EMAIL
+  STORAGE
+  API
+  AUTH
+  FEATURE
+  UI
+  GENERAL
+}
+
+enum FeatureFlagStatus {
+  ENABLED
+  DISABLED
+  BETA
+  DEPRECATED
+}
+
+enum MaintenanceMode {
+  OFF
+  READ_ONLY
+  FULL
+}
+
+model SystemConfiguration {
+  id          String            @id @default(uuid())
+  category    ConfigurationType @default(GENERAL)
+  key         String            @unique
+  value       String
+  valueType   String            @default("STRING") @map("value_type")
+  description String?
+  isEncrypted Boolean           @default(false) @map("is_encrypted")
+  isEditable  Boolean           @default(true) @map("is_editable")
+  version     Int               @default(1)
+  createdBy   String?           @map("created_by")
+  updatedBy   String?           @map("updated_by")
+  status      GovernanceStatus  @default(ACTIVE)
+  isDeleted   Boolean           @default(false) @map("is_deleted")
+  deletedAt   DateTime?         @map("deleted_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  versions    ConfigurationVersion[]
+
+  @@map("system_configurations")
+}
+
+model FeatureFlag {
+  id                 String            @id @default(uuid())
+  code               String            @unique
+  name               String
+  description        String?
+  status             FeatureFlagStatus @default(DISABLED)
+  enabledForRoles    String[]          @map("enabled_for_roles")
+  enabledForModules  String[]          @map("enabled_for_modules")
+  rolloutPercentage  Int               @default(100) @map("rollout_percentage")
+  version            Int               @default(1)
+  isDeleted          Boolean           @default(false) @map("is_deleted")
+  deletedAt          DateTime?         @map("deleted_at")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  @@map("feature_flags")
+}
+
+model MasterDataCategory {
+  id          String           @id @default(uuid())
+  code        String           @unique
+  name        String
+  description String?
+  status      GovernanceStatus @default(ACTIVE)
+  isDeleted   Boolean          @default(false) @map("is_deleted")
+  deletedAt   DateTime?        @map("deleted_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  items       MasterDataItem[]
+
+  @@map("master_data_categories")
+}
+
+model MasterDataItem {
+  id          String             @id @default(uuid())
+  categoryId  String             @map("category_id")
+  code        String             @map("code")
+  name        String
+  description String?
+  sortOrder   Int                @default(0) @map("sort_order")
+  isDefault   Boolean            @default(false) @map("is_default")
+  status      GovernanceStatus   @default(ACTIVE)
+  isDeleted   Boolean            @default(false) @map("is_deleted")
+  deletedAt   DateTime?          @map("deleted_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  category    MasterDataCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, code])
+  @@map("master_data_items")
+}
+
+model ConfigurationVersion {
+  id              String              @id @default(uuid())
+  configurationId String              @map("configuration_id")
+  version         Int
+  previousValue   String?             @map("previous_value")
+  newValue        String              @map("new_value")
+  changedBy       String?             @map("changed_by")
+  changeReason    String?             @map("change_reason")
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  configuration   SystemConfiguration @relation(fields: [configurationId], references: [id], onDelete: Cascade)
+
+  @@map("configuration_versions")
+}
+
+model PlatformGovernancePolicy {
+  id            String           @id @default(uuid())
+  code          String           @unique
+  title         String
+  description   String?
+  content       String
+  version       String           @default("1.0")
+  effectiveDate DateTime?        @map("effective_date")
+  status        GovernanceStatus @default(ACTIVE)
+  isDeleted     Boolean          @default(false) @map("is_deleted")
+  deletedAt     DateTime?        @map("deleted_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@map("platform_governance_policies")
+}
+
+model MaintenanceConfiguration {
+  id               String          @id @default(uuid())
+  mode             MaintenanceMode @default(OFF)
+  message          String?
+  startsAt         DateTime?       @map("starts_at")
+  endsAt           DateTime?       @map("ends_at")
+  allowAdminAccess Boolean         @default(true) @map("allow_admin_access")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  @@map("maintenance_configurations")
+}
+
+model GovernanceAuditLog {
+  id          String   @id @default(uuid())
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id")
+  action      String
+  performedBy String?  @map("performed_by")
+  oldValue    String?  @map("old_value")
+  newValue    String?  @map("new_value")
+  metadata    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("governance_audit_logs")
+}
+
+
 
 
 

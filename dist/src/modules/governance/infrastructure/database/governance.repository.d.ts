@@ -1,0 +1,58 @@
+import { DatabaseService } from "../../../../database/database.service";
+import { IGovernanceRepository } from '../../domain/repositories/governance.repository.interface';
+import { SystemConfigurationEntity, FeatureFlagEntity, MasterDataCategoryEntity, MasterDataItemEntity, PlatformGovernancePolicyEntity, MaintenanceConfigurationEntity, GovernanceAuditLogEntity } from '../../domain/entities/governance.entity';
+export declare class GovernanceRepository implements IGovernanceRepository {
+    private readonly db;
+    constructor(db: DatabaseService);
+    createConfiguration(data: any): Promise<SystemConfigurationEntity>;
+    findConfigurations(category?: string): Promise<SystemConfigurationEntity[]>;
+    findConfigurationByKey(key: string): Promise<SystemConfigurationEntity | null>;
+    findConfigurationById(id: string): Promise<SystemConfigurationEntity | null>;
+    updateConfiguration(id: string, data: any, changeReason?: string): Promise<SystemConfigurationEntity>;
+    softDeleteConfiguration(id: string): Promise<void>;
+    bulkUpsertConfigurations(configs: any[], userId?: string): Promise<number>;
+    createFeatureFlag(data: any): Promise<FeatureFlagEntity>;
+    findFeatureFlags(): Promise<FeatureFlagEntity[]>;
+    findFeatureFlagByCode(code: string): Promise<FeatureFlagEntity | null>;
+    findFeatureFlagById(id: string): Promise<FeatureFlagEntity | null>;
+    updateFeatureFlag(id: string, data: any): Promise<FeatureFlagEntity>;
+    softDeleteFeatureFlag(id: string): Promise<void>;
+    createMasterCategory(data: any): Promise<MasterDataCategoryEntity>;
+    findMasterCategories(): Promise<MasterDataCategoryEntity[]>;
+    findMasterCategoryByCode(code: string): Promise<MasterDataCategoryEntity | null>;
+    findMasterCategoryById(id: string): Promise<MasterDataCategoryEntity | null>;
+    createMasterItem(data: any): Promise<MasterDataItemEntity>;
+    findMasterItems(categoryId?: string): Promise<MasterDataItemEntity[]>;
+    findMasterItemById(id: string): Promise<MasterDataItemEntity | null>;
+    updateMasterItem(id: string, data: any): Promise<MasterDataItemEntity>;
+    softDeleteMasterItem(id: string): Promise<void>;
+    countActiveItemsInCategory(categoryId: string): Promise<number>;
+    createPolicy(data: any): Promise<PlatformGovernancePolicyEntity>;
+    findPolicies(): Promise<PlatformGovernancePolicyEntity[]>;
+    findPolicyByCode(code: string): Promise<PlatformGovernancePolicyEntity | null>;
+    findPolicyById(id: string): Promise<PlatformGovernancePolicyEntity | null>;
+    updatePolicy(id: string, data: any): Promise<PlatformGovernancePolicyEntity>;
+    softDeletePolicy(id: string): Promise<void>;
+    getMaintenanceConfig(): Promise<MaintenanceConfigurationEntity | null>;
+    updateMaintenanceConfig(data: any): Promise<MaintenanceConfigurationEntity>;
+    createAuditLog(data: {
+        entityType: string;
+        entityId: string;
+        action: string;
+        performedBy?: string;
+        oldValue?: string;
+        newValue?: string;
+        metadata?: any;
+    }): Promise<GovernanceAuditLogEntity>;
+    findAuditLogs(entityType?: string, limit?: number): Promise<GovernanceAuditLogEntity[]>;
+    findAuditLogById(id: string): Promise<GovernanceAuditLogEntity | null>;
+    getGovernanceDashboardData(): Promise<{
+        totalConfigurations: number;
+        activeFeatureFlags: number;
+        masterDataCategoriesCount: number;
+        masterDataItemsCount: number;
+        activePoliciesCount: number;
+        maintenanceMode: string;
+        recentAuditLogsCount: number;
+    }>;
+}

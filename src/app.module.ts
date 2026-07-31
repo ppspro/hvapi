@@ -23,6 +23,7 @@ import { ImmunisationModule } from '@modules/immunisation/immunisation.module';
 import { StaffModule } from '@modules/staff/staff.module';
 import { ScheduleModule } from '@modules/schedule/schedule.module';
 import { ReportsModule } from '@modules/reports/reports.module';
+import { GovernanceModule } from '@modules/governance/governance.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { ReportsModule } from '@modules/reports/reports.module';
     StaffModule,
     ScheduleModule,
     ReportsModule,
+    GovernanceModule,
   ],
 })
 export class AppModule {}
