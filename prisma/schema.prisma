@@ -2800,6 +2800,145 @@ model ComplianceReport {
   @@map("compliance_reports")
 }
 
+// ─── Phase 24: Enterprise Performance & Observability Platform ──────────────
+
+enum SystemHealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+  OFFLINE
+}
+
+enum MetricCategory {
+  SYSTEM
+  APPLICATION
+  DATABASE
+  CACHE
+  QUEUE
+  API
+  SECURITY
+  OCR
+  NOTIFICATION
+}
+
+enum LogSeverity {
+  TRACE
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  FATAL
+}
+
+enum TraceStatus {
+  STARTED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum CacheStatus {
+  HIT
+  MISS
+  EVICTED
+  EXPIRED
+}
+
+model SystemMetric {
+  id             String         @id @default(uuid())
+  metricCategory MetricCategory @default(APPLICATION) @map("metric_category")
+  metricName     String         @map("metric_name")
+  metricValue    Float          @map("metric_value")
+  unit           String         @default("count")
+  recordedAt     DateTime       @default(now()) @map("recorded_at")
+  metadata       String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  @@index([metricCategory, metricName])
+  @@map("system_metrics")
+}
+
+model ApplicationLog {
+  id        String      @id @default(uuid())
+  severity  LogSeverity @default(INFO)
+  service   String      @default("hvapi-backend")
+  module    String      @default("core")
+  requestId String?     @map("request_id")
+  traceId   String?     @map("trace_id")
+  userId    String?     @map("user_id")
+  message   String
+  context   String?
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@index([severity, service])
+  @@index([requestId])
+  @@index([traceId])
+  @@map("application_logs")
+}
+
+model TraceExecution {
+  id          String      @id @default(uuid())
+  traceId     String      @map("trace_id")
+  service     String      @default("hvapi-backend")
+  operation   String
+  status      TraceStatus @default(STARTED)
+  startedAt   DateTime    @default(now()) @map("started_at")
+  completedAt DateTime?   @map("completed_at")
+  durationMs  Int?        @map("duration_ms")
+  metadata    String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@index([traceId])
+  @@map("trace_executions")
+}
+
+model BackgroundJob {
+  id            String    @id @default(uuid())
+  jobName       String    @map("job_name")
+  jobType       String    @map("job_type")
+  status        String    @default("QUEUED")
+  startedAt     DateTime? @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  durationMs    Int?      @map("duration_ms")
+  failureReason String?   @map("failure_reason")
+  metadata      String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("background_jobs")
+}
+
+model SystemHealthCheck {
+  id             String             @id @default(uuid())
+  component      String
+  status         SystemHealthStatus @default(HEALTHY)
+  checkedAt      DateTime           @default(now()) @map("checked_at")
+  responseTimeMs Int                @default(0) @map("response_time_ms")
+  details        String?
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  @@map("system_health_checks")
+}
+
+model PerformanceSnapshot {
+  id              String   @id @default(uuid())
+  cpuUsage        Float    @default(0.0) @map("cpu_usage")
+  memoryUsage     Float    @default(0.0) @map("memory_usage")
+  databaseLatency Float    @default(0.0) @map("database_latency")
+  cacheHitRate    Float    @default(1.0) @map("cache_hit_rate")
+  queueDepth      Int      @default(0) @map("queue_depth")
+  activeUsers     Int      @default(0) @map("active_users")
+  requestRate     Float    @default(0.0) @map("request_rate")
+  errorRate       Float    @default(0.0) @map("error_rate")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("performance_snapshots")
+}
+
+
 
 
 

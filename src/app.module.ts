@@ -27,6 +27,7 @@ import { GovernanceModule } from '@modules/governance/governance.module';
 import { NotificationsModule } from '@modules/notifications/notifications.module';
 import { OcrModule } from '@modules/ocr/ocr.module';
 import { SecurityModule } from '@modules/security/security.module';
+import { ObservabilityModule } from '@modules/observability/observability.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { SecurityModule } from '@modules/security/security.module';
     NotificationsModule,
     OcrModule,
     SecurityModule,
+    ObservabilityModule,
   ],
 })
 export class AppModule {}
