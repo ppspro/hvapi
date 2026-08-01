@@ -28,6 +28,7 @@ import { NotificationsModule } from '@modules/notifications/notifications.module
 import { OcrModule } from '@modules/ocr/ocr.module';
 import { SecurityModule } from '@modules/security/security.module';
 import { ObservabilityModule } from '@modules/observability/observability.module';
+import { ReferralModule } from '@modules/referral/referral.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { ObservabilityModule } from '@modules/observability/observability.module
     OcrModule,
     SecurityModule,
     ObservabilityModule,
+    ReferralModule,
   ],
 })
 export class AppModule {}

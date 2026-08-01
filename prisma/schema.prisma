@@ -2938,6 +2938,124 @@ model PerformanceSnapshot {
   @@map("performance_snapshots")
 }
 
+// ─── Milestone 6: Enterprise Referral & Care Coordination Platform ────────
+
+enum ReferralStatus {
+  DRAFT
+  SUBMITTED
+  TRIAGED
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum ReferralPriority {
+  ROUTINE
+  URGENT
+  EMERGENCY
+  STAT
+}
+
+enum ReferralType {
+  SPECIALIST_CONSULTATION
+  DIAGNOSTIC_IMAGING
+  LABORATORY_TEST
+  PHYSICAL_THERAPY
+  INPATIENT_TRANSFER
+  OUTPATIENT_CARE
+  SECOND_OPINION
+}
+
+enum ReferralTriageOutcome {
+  APPROVED
+  MORE_INFO_REQUESTED
+  DECLINED
+  REDIRECTED
+}
+
+model PatientReferral {
+  id                  String           @id @default(uuid())
+  referralNumber      String           @unique @map("referral_number")
+  patientId           String           @map("patient_id")
+  referringDoctorId   String           @map("referring_doctor_id")
+  referringFacilityId String           @map("referring_facility_id")
+  receivingDoctorId   String?          @map("receiving_doctor_id")
+  receivingFacilityId String           @map("receiving_facility_id")
+  medicalRecordId     String?          @map("medical_record_id")
+  referralType        ReferralType     @default(SPECIALIST_CONSULTATION) @map("referral_type")
+  priority            ReferralPriority @default(ROUTINE)
+  status              ReferralStatus   @default(SUBMITTED)
+  reasonForReferral   String           @map("reason_for_referral")
+  clinicalSummary     String?          @map("clinical_summary")
+  specialtyRequired   String?          @map("specialty_required")
+  expiresAt           DateTime?        @map("expires_at")
+  acceptedAt          DateTime?        @map("accepted_at")
+  completedAt         DateTime?        @map("completed_at")
+  rejectedAt          DateTime?        @map("rejected_at")
+  rejectionReason     String?          @map("rejection_reason")
+  isDeleted           Boolean          @default(false) @map("is_deleted")
+  deletedAt           DateTime?        @map("deleted_at")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  notes               ReferralNote[]
+  attachments         ReferralAttachment[]
+  statusHistory       ReferralStatusHistory[]
+
+  @@index([patientId])
+  @@index([referringDoctorId])
+  @@index([receivingFacilityId])
+  @@index([status, priority])
+  @@map("patient_referrals")
+}
+
+model ReferralNote {
+  id         String          @id @default(uuid())
+  referralId String          @map("referral_id")
+  authorId   String          @map("author_id")
+  authorRole String          @map("author_role")
+  noteText   String          @map("note_text")
+  isPrivate  Boolean         @default(false) @map("is_private")
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  referral   PatientReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@index([referralId])
+  @@map("referral_notes")
+}
+
+model ReferralAttachment {
+  id           String          @id @default(uuid())
+  referralId   String          @map("referral_id")
+  attachmentId String          @map("attachment_id")
+  attachedBy   String          @map("attached_by")
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  referral     PatientReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@index([referralId])
+  @@map("referral_attachments")
+}
+
+model ReferralStatusHistory {
+  id         String          @id @default(uuid())
+  referralId String          @map("referral_id")
+  fromStatus ReferralStatus? @map("from_status")
+  toStatus   ReferralStatus  @map("to_status")
+  changedBy  String          @map("changed_by")
+  reason     String?
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  referral   PatientReferral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@index([referralId])
+  @@map("referral_status_histories")
+}
+
+
 
 
 
