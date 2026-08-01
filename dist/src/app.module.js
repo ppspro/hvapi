@@ -36,6 +36,7 @@ const notifications_module_1 = require("./modules/notifications/notifications.mo
 const ocr_module_1 = require("./modules/ocr/ocr.module");
 const security_module_1 = require("./modules/security/security.module");
 const observability_module_1 = require("./modules/observability/observability.module");
+const referral_module_1 = require("./modules/referral/referral.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -77,6 +78,7 @@ exports.AppModule = AppModule = __decorate([
             ocr_module_1.OcrModule,
             security_module_1.SecurityModule,
             observability_module_1.ObservabilityModule,
+            referral_module_1.ReferralModule,
         ],
     })
 ], AppModule);
