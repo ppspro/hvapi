@@ -82,7 +82,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new global_exception_filter_1.GlobalExceptionFilter(logger));
     app.enableShutdownHooks();
-    const port = process.env.PORT || 3000;
+    const port = process.env.PORT || 3073;
     await app.listen(port);
     logger.log(`HVAPI Enterprise Server running on http://localhost:${port}/${globalPrefix}/v1`);
     logger.log(`OpenAPI Swagger documentation available at http://localhost:${port}/${swaggerPath}`);

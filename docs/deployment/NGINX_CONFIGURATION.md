@@ -10,7 +10,7 @@
 # /www/server/panel/vhost/nginx/360api.vnvision.in.conf
 
 upstream hvapi_backend {
-    server 127.0.0.1:3000 max_fails=3 fail_timeout=10s;
+    server 127.0.0.1:3073 max_fails=3 fail_timeout=10s;
     keepalive 32;
 }
 

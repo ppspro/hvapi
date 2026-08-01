@@ -3,7 +3,7 @@
 ```env
 # Node & Application Environment
 NODE_ENV=production
-PORT=3000
+PORT=3073
 API_PREFIX=api
 API_VERSION=v1
 SWAGGER_PATH=docs
